@@ -78,29 +78,29 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="simulation-challenge---monte-carlo-analysis" class="level1">
-<h1>Simulation Challenge - Monte Carlo Analysis</h1>
-<section id="part-1-expected-value-analysis" class="level2">
-<h2 class="anchored" data-anchor-id="part-1-expected-value-analysis">Part 1: Expected Value Analysis</h2>
-<p>The expected value after one coin flip is:</p>
-<p><strong>Heads outcome:</strong> $1,500 (50% chance)</p>
-<p><strong>Tails outcome:</strong> $600 (50% chance)</p>
-<p><strong>Expected value:</strong> $1,050</p>
+<section id="monte-carlo-analysis---simulation-challenge" class="level1">
+<h1>Monte Carlo Analysis - Simulation Challenge</h1>
+<section id="part-1-whats-the-expected-value" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-whats-the-expected-value">Part 1: What’s the Expected Value?</h2>
+<p>Here’s what happens after a single coin flip:</p>
+<p><strong>Heads payout:</strong> $1,500 (50% probability)</p>
+<p><strong>Tails payout:</strong> $600 (50% probability)</p>
+<p><strong>Overall expected value:</strong> $1,050</p>
 </section>
-<section id="part-2-expectation-vs.-reality" class="level2">
-<h2 class="anchored" data-anchor-id="part-2-expectation-vs.-reality">Part 2: Expectation vs.&nbsp;Reality</h2>
-<p><strong>Analysis:</strong></p>
+<section id="part-2-does-the-expected-value-beat-my-initial-investment" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-does-the-expected-value-beat-my-initial-investment">Part 2: Does the Expected Value Beat My Initial Investment?</h2>
+<p><strong>The breakdown:</strong></p>
 <ul>
-<li><strong>Expected value after 1 flip:</strong> $1,050</li>
-<li><strong>Initial investment:</strong> $1,000</li>
-<li><strong>Difference:</strong> $50</li>
+<li><strong>Expected value (1 flip):</strong> $1,050</li>
+<li><strong>Starting amount:</strong> $1,000</li>
+<li><strong>Net difference:</strong> $50</li>
 </ul>
 <p><strong>POSITIVE EXPECTED VALUE:</strong> The expected value is HIGHER than the initial investment.</p>
-<p>This means the game has a positive expected return of 5% per flip.</p>
-<p>Based on this, you would expect your account to be worth MORE than $1,000.</p>
+<p>So we’re looking at a positive expected return of roughly 5% per flip.</p>
+<p>Based purely on expected value, I’d predict my balance to end up MORE than $1,000.</p>
 </section>
-<section id="part-3-single-simulation" class="level2">
-<h2 class="anchored" data-anchor-id="part-3-single-simulation">Part 3: Single Simulation</h2>
+<section id="part-3-running-a-single-simulation" class="level2">
+<h2 class="anchored" data-anchor-id="part-3-running-a-single-simulation">Part 3: Running a Single Simulation</h2>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -110,25 +110,25 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<p><strong>Single Simulation Analysis:</strong></p>
+<p><strong>What happened in this run:</strong></p>
 <ul>
-<li><strong>Starting age:</strong> 20</li>
-<li><strong>Retirement age:</strong> 55</li>
-<li><strong>Initial balance:</strong> $1,000</li>
-<li><strong>Final balance:</strong> $16.01</li>
-<li><strong>Total return:</strong> -98.4%</li>
-<li><strong>Annualized return:</strong> -11.142%</li>
-<li><strong>Estimated heads:</strong> 15 out of 35 flips</li>
-<li><strong>Estimated tails:</strong> 20 out of 35 flips</li>
+<li><strong>Age at start:</strong> 20</li>
+<li><strong>Age at retirement:</strong> 55</li>
+<li><strong>Starting balance:</strong> $1,000</li>
+<li><strong>Ending balance:</strong> $16.01</li>
+<li><strong>Overall return:</strong> -98.4%</li>
+<li><strong>Average yearly return:</strong> -11.142%</li>
+<li><strong>Heads flips (approx.):</strong> 15 out of 35 total</li>
+<li><strong>Tails flips (approx.):</strong> 20 out of 35 total</li>
 </ul>
-<p><strong>Commentary:</strong></p>
+<p><strong>What I’m taking away from this:</strong></p>
 <p><strong>LOSS!</strong> This simulation resulted in a <strong>LOSS</strong>.</p>
-<p>The account shrank from $1,000 to $16.01.</p>
-<p>This represents a -98.4% loss over 35 years.</p>
-<p>This single simulation shows the high volatility of the game. While the expected value is positive, individual outcomes can vary dramatically. I would not be happy with a 98.4% loss on my investment after 35 years of the game.</p>
+<p>My account shrank from $1,000 to $16.01.</p>
+<p>That’s a -98.4% loss stretched across 35 years.</p>
+<p>This one run demonstrates just how wild the variance can get. Sure, the expected value looks good on paper, but real outcomes are all over the map. If I actually lost 98.4% of my money after 35 years, I’d be pretty upset.</p>
 </section>
-<section id="part-4-multiple-simulations" class="level2">
-<h2 class="anchored" data-anchor-id="part-4-multiple-simulations">Part 4: Multiple Simulations</h2>
+<section id="part-4-lets-run-100-simulations" class="level2">
+<h2 class="anchored" data-anchor-id="part-4-lets-run-100-simulations">Part 4: Let’s Run 100 Simulations</h2>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -138,7 +138,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<p><strong>100 Simulations Summary:</strong></p>
+<p><strong>Stats from 100 runs:</strong></p>
 <table class="caption-top table">
 <caption>Summary Statistics (100 Simulations)</caption>
 <thead>
@@ -178,20 +178,20 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
-<p><strong>Key Observations:</strong></p>
-<p>The probability distribution reveals the <strong>extreme volatility</strong> of this investment game:</p>
+<p><strong>What stands out:</strong></p>
+<p>The distribution shows just how <strong>risky</strong> this game really is:</p>
 <ul>
-<li><strong>Wide range:</strong> From $0.16 to $381,710.4</li>
-<li><strong>High standard deviation:</strong> $41,649.64 indicates massive variability</li>
-<li><strong>Skewed distribution:</strong> The mean ($8,031.01) is much higher than the median ($250.16)</li>
-<li><strong>Most outcomes are losses:</strong> Only 31% of simulations resulted in positive returns</li>
+<li><strong>Massive spread:</strong> Results range from $0.16 all the way up to $381,710.4</li>
+<li><strong>Huge volatility:</strong> Standard deviation of $41,649.64 shows outcomes are wildly inconsistent</li>
+<li><strong>Right-skewed outcomes:</strong> Mean ($8,031.01) far exceeds the median ($250.16)</li>
+<li><strong>Typically you lose:</strong> Only 31% of runs ended positive</li>
 </ul>
-<p>As an investor, I would not be happy playing this game long term because almost 70% of the time I would end up with less than my initial investment. There are a few outliers that skew the average but the median of $250 is a good indicator of the typical outcome.</p>
+<p>Personally? I wouldn’t want to play this long-term. About 70% of the time you end up below where you started. A handful of lucky runs inflate the average, but the median around $250 tells the real story about what usually happens.</p>
 </section>
-<section id="part-5-probability-analysis" class="level2">
-<h2 class="anchored" data-anchor-id="part-5-probability-analysis">Part 5: Probability Analysis</h2>
-<p>The probability that my account balance will be greater than $1,000 at age 55 is 31%.</p>
-<p><strong>Probability Analysis Results:</strong></p>
+<section id="part-5-what-are-my-odds-of-beating-1000" class="level2">
+<h2 class="anchored" data-anchor-id="part-5-what-are-my-odds-of-beating-1000">Part 5: What Are My Odds of Beating $1,000?</h2>
+<p>The chance my balance tops $1,000 by age 55 is about 31%.</p>
+<p><strong>Digging into probabilities:</strong></p>
 <table class="caption-top table">
 <caption>Percentile Summary (100 Simulations)</caption>
 <thead>
@@ -236,8 +236,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="part-6-strategy-comparison" class="level2">
-<h2 class="anchored" data-anchor-id="part-6-strategy-comparison">Part 6: Strategy Comparison</h2>
+<section id="part-6-how-does-a-different-strategy-compare" class="level2">
+<h2 class="anchored" data-anchor-id="part-6-how-does-a-different-strategy-compare">Part 6: How Does a Different Strategy Compare?</h2>
 <p><strong>Analysis:</strong> The modified game strategy has a lower probability of ending with more than $10,000 at age 55 compared to the original game. Interestingly, while the modified strategy is more likely to achieve at least $1,000 (break-even), it is less likely to reach the high-end target of $10,000. This suggests that the modified strategy is less likely to achieve high returns but may also be less volatile overall.</p>
 <table class="caption-top table">
 <caption>Probability of Ending Above $10,000 (100 Simulations)</caption>
@@ -260,14 +260,14 @@ ul.task-list li input[type="checkbox"] {
 </table>
 <p>Result: Lower (modified vs.&nbsp;original)</p>
 </section>
-<section id="visualizations-and-tables-original-vs.-modified" class="level2">
-<h2 class="anchored" data-anchor-id="visualizations-and-tables-original-vs.-modified">Visualizations and Tables: Original vs.&nbsp;Modified</h2>
+<section id="comparing-original-and-modified-strategies-visually" class="level2">
+<h2 class="anchored" data-anchor-id="comparing-original-and-modified-strategies-visually">Comparing Original and Modified Strategies Visually</h2>
 <div class="cell">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="simulationChallenge_fixed_files/figure-html/comparison-visuals-1.png" class="img-fluid figure-img" width="960"></p>
-<figcaption>Distribution of final balances across 100 simulations for both strategies</figcaption>
+<figcaption>How final balances compare across 100 simulations for each strategy</figcaption>
 </figure>
 </div>
 </div>
@@ -277,7 +277,7 @@ ul.task-list li input[type="checkbox"] {
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="simulationChallenge_fixed_files/figure-html/comparison-box-1.png" class="img-fluid figure-img" width="960"></p>
-<figcaption>Boxplots of final balances across 100 simulations by strategy</figcaption>
+<figcaption>Side-by-side boxplots showing final balance distributions for both strategies</figcaption>
 </figure>
 </div>
 </div>

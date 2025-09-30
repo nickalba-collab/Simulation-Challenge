@@ -29,7 +29,7 @@ execute:
   message: false
 ---
 
-# Simulation Challenge - Monte Carlo Analysis
+# Monte Carlo Analysis - Simulation Challenge
 
 ```{r}
 #| label: complete-simulation
@@ -112,17 +112,17 @@ invisible({
 })
 ```
 
-## Part 1: Expected Value Analysis
+## Part 1: What's the Expected Value?
 
-The expected value after one coin flip is:
+Here's what happens after a single coin flip:
 
-**Heads outcome:** $`r format(ev_analysis$heads_outcome, big.mark = ",")` (50% chance)
+**Heads payout:** $`r format(ev_analysis$heads_outcome, big.mark = ",")` (50% probability)
 
-**Tails outcome:** $`r format(ev_analysis$tails_outcome, big.mark = ",")` (50% chance)
+**Tails payout:** $`r format(ev_analysis$tails_outcome, big.mark = ",")` (50% probability)
 
-**Expected value:** $`r format(ev_analysis$expected_value_1_flip, big.mark = ",")`
+**Overall expected value:** $`r format(ev_analysis$expected_value_1_flip, big.mark = ",")`
 
-## Part 2: Expectation vs. Reality
+## Part 2: Does the Expected Value Beat My Initial Investment?
 
 ```{r}
 #| label: expectation-vs-reality
@@ -143,20 +143,20 @@ invisible({
 })
 ```
 
-**Analysis:**
+**The breakdown:**
 
-- **Expected value after 1 flip:** $`r format(expectation_analysis$expected_value_1_flip, big.mark = ",")`
-- **Initial investment:** $`r format(expectation_analysis$initial_balance, big.mark = ",")`
-- **Difference:** $`r format(expectation_analysis$difference, big.mark = ",")`
+* **Expected value (1 flip):** $`r format(expectation_analysis$expected_value_1_flip, big.mark = ",")`
+* **Starting amount:** $`r format(expectation_analysis$initial_balance, big.mark = ",")`
+* **Net difference:** $`r format(expectation_analysis$difference, big.mark = ",")`
 
 `r if(expectation_analysis$is_positive) {" **POSITIVE EXPECTED VALUE:** The expected value is HIGHER than the initial investment."} else {" **NEGATIVE EXPECTED VALUE:** The expected value is LOWER than the initial investment."}`
 
-This means the game has a `r if(expectation_analysis$is_positive) {"positive"} else {"negative"}` expected return of `r round(expectation_analysis$expected_return_pct, 1)`% per flip.
+So we're looking at a `r if(expectation_analysis$is_positive) {"positive"} else {"negative"}` expected return of roughly `r round(expectation_analysis$expected_return_pct, 1)`% per flip.
 
-Based on this, you would expect your account to be worth `r if(expectation_analysis$is_positive) {"MORE"} else {"LESS"}` than $1,000.
+Based purely on expected value, I'd predict my balance to end up `r if(expectation_analysis$is_positive) {"MORE"} else {"LESS"}` than $1,000.
 
 
-## Part 3: Single Simulation
+## Part 3: Running a Single Simulation
 
 ```{r}
 #| label: single-simulation
@@ -221,28 +221,28 @@ invisible({
 })
 ```
 
-**Single Simulation Analysis:**
+**What happened in this run:**
 
-- **Starting age:** `r single_sim_analysis$starting_age`
-- **Retirement age:** `r single_sim_analysis$retirement_age`
-- **Initial balance:** $`r format(single_sim_analysis$initial_balance, big.mark = ",")`
-- **Final balance:** $`r format(round(single_sim_analysis$final_balance, 2), big.mark = ",")`
-- **Total return:** `r round(single_sim_analysis$total_return_pct, 1)`%
-- **Annualized return:** `r round(single_sim_analysis$annualized_return * 100, 3)`%
-- **Estimated heads:** `r round(single_sim_analysis$estimated_heads, 1)` out of `r years_to_retirement` flips
-- **Estimated tails:** `r round(single_sim_analysis$estimated_tails, 1)` out of `r years_to_retirement` flips
+* **Age at start:** `r single_sim_analysis$starting_age`
+* **Age at retirement:** `r single_sim_analysis$retirement_age`
+* **Starting balance:** $`r format(single_sim_analysis$initial_balance, big.mark = ",")`
+* **Ending balance:** $`r format(round(single_sim_analysis$final_balance, 2), big.mark = ",")`
+* **Overall return:** `r round(single_sim_analysis$total_return_pct, 1)`%
+* **Average yearly return:** `r round(single_sim_analysis$annualized_return * 100, 3)`%
+* **Heads flips (approx.):** `r round(single_sim_analysis$estimated_heads, 1)` out of `r years_to_retirement` total
+* **Tails flips (approx.):** `r round(single_sim_analysis$estimated_tails, 1)` out of `r years_to_retirement` total
 
-**Commentary:**
+**What I'm taking away from this:**
 
 `r if(single_sim_analysis$is_profitable) {"**SUCCESS!** This simulation resulted in a **PROFIT**."} else {"**LOSS!** This simulation resulted in a **LOSS**."}`
 
-The account `r if(single_sim_analysis$is_profitable) {"grew"} else {"shrank"}` from $1,000 to $`r format(round(single_sim_analysis$final_balance, 2), big.mark = ",")`.
+My account `r if(single_sim_analysis$is_profitable) {"grew"} else {"shrank"}` from $1,000 to $`r format(round(single_sim_analysis$final_balance, 2), big.mark = ",")`.
 
-This represents a `r round(single_sim_analysis$total_return_pct, 1)`% `r if(single_sim_analysis$is_profitable) {"gain"} else {"loss"}` over 35 years.
+That's a `r round(single_sim_analysis$total_return_pct, 1)`% `r if(single_sim_analysis$is_profitable) {"gain"} else {"loss"}` stretched across 35 years.
 
-This single simulation shows the high volatility of the game. While the expected value is positive, individual outcomes can vary dramatically. I would not be happy with a 98.4% loss on my investment after 35 years of the game.
+This one run demonstrates just how wild the variance can get. Sure, the expected value looks good on paper, but real outcomes are all over the map. If I actually lost 98.4% of my money after 35 years, I'd be pretty upset.
 
-## Part 4: Multiple Simulations
+## Part 4: Let's Run 100 Simulations
 ```{r}
 #| label: multiple-simulations
 
@@ -321,7 +321,7 @@ invisible({
 })
 ```
 
-**100 Simulations Summary:**
+**Stats from 100 runs:**
 
 ```{r}
 #| label: small-summary-table
@@ -355,20 +355,20 @@ small_summary_table <- tibble::tibble(
 knitr::kable(small_summary_table, align = c('l','r'), caption = 'Summary Statistics (100 Simulations)')
 ```
 
-**Key Observations:**
+**What stands out:**
 
-The probability distribution reveals the **extreme volatility** of this investment game:
+The distribution shows just how **risky** this game really is:
 
-- **Wide range:** From $`r format(round(small_sim_analysis$min_balance, 2), big.mark = ",")` to $`r format(round(small_sim_analysis$max_balance, 2), big.mark = ",")`
-- **High standard deviation:** $`r format(round(small_sim_analysis$std_dev, 2), big.mark = ",")` indicates massive variability
-- **Skewed distribution:** The mean ($`r format(round(small_sim_analysis$mean_balance, 2), big.mark = ",")`) is much higher than the median ($`r format(round(small_sim_analysis$median_balance, 2), big.mark = ",")`)
-- **Most outcomes are losses:** Only `r round(small_sim_analysis$prob_positive * 100, 1)`% of simulations resulted in positive returns
+* **Massive spread:** Results range from $`r format(round(small_sim_analysis$min_balance, 2), big.mark = ",")` all the way up to $`r format(round(small_sim_analysis$max_balance, 2), big.mark = ",")`
+* **Huge volatility:** Standard deviation of $`r format(round(small_sim_analysis$std_dev, 2), big.mark = ",")` shows outcomes are wildly inconsistent
+* **Right-skewed outcomes:** Mean ($`r format(round(small_sim_analysis$mean_balance, 2), big.mark = ",")`) far exceeds the median ($`r format(round(small_sim_analysis$median_balance, 2), big.mark = ",")`)
+* **Typically you lose:** Only `r round(small_sim_analysis$prob_positive * 100, 1)`% of runs ended positive
 
-As an investor, I would not be happy playing this game long term because almost 70% of the time I would end up with less than my initial investment. There are a few outliers that skew the average but the median of $250 is a good indicator of the typical outcome.
+Personally? I wouldn't want to play this long-term. About 70% of the time you end up below where you started. A handful of lucky runs inflate the average, but the median around $250 tells the real story about what usually happens.
 
-## Part 5: Probability Analysis
+## Part 5: What Are My Odds of Beating $1,000?
 
-The probability that my account balance will be greater than $1,000 at age 55 is 31%.
+The chance my balance tops $1,000 by age 55 is about 31%.
 
 ```{r}
 #| label: probability-analysis
@@ -402,7 +402,7 @@ invisible({
 })
 ```
 
-**Probability Analysis Results:**
+**Digging into probabilities:**
 
 ```{r}
 #| label: probability-table
@@ -436,7 +436,7 @@ pct_table <- tibble::tibble(
 knitr::kable(pct_table, align = c('l','r'), caption = 'Percentile Summary (100 Simulations)')
 ```
 
-## Part 6: Strategy Comparison
+## Part 6: How Does a Different Strategy Compare?
 
 ```{r}
 #| label: strategy-comparison
@@ -480,11 +480,11 @@ knitr::kable(comparison_table, align = c('l','r'), caption = 'Probability of End
 cat("\n", sprintf("Result: %s (modified vs. original)", comparison_word))
 ```
 
-## Visualizations and Tables: Original vs. Modified
+## Comparing Original and Modified Strategies Visually
 
 ```{r}
 #| label: comparison-visuals
-#| fig-cap: "Distribution of final balances across 100 simulations for both strategies"
+#| fig-cap: "How final balances compare across 100 simulations for each strategy"
 
 # Build combined dataset for visualization
 orig_df_small <- tibble::tibble(
@@ -524,7 +524,7 @@ print(p_comp)
 
 ```{r}
 #| label: comparison-box
-#| fig-cap: "Boxplots of final balances across 100 simulations by strategy"
+#| fig-cap: "Side-by-side boxplots showing final balance distributions for both strategies"
 
 ggplot(combined_df, aes(x = scenario, y = final_balance, fill = scenario)) +
   geom_boxplot(alpha = 0.6, outlier.alpha = 0.5) +
