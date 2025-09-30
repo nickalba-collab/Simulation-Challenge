@@ -1,0 +1,575 @@
+---
+title: "Simulation Challenge"
+subtitle: "Generative Models and Monte Carlo Simulation"
+format:
+  html:
+    theme: cosmo
+    toc: false
+    number-sections: false
+    code-fold: false
+    code-tools: false
+    css: |
+      .cell-output {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .cell-output pre {
+        background-color: transparent;
+        border: none;
+        margin: 0;
+        padding: 0;
+      }
+execute:
+  echo: false
+  eval: true
+  warning: false
+  message: false
+---
+
+# Simulation Challenge - Monte Carlo Analysis
+
+```{r}
+#| label: complete-simulation
+
+# Load required libraries
+library(dplyr)
+library(ggplot2)
+library(purrr)
+library(tibble)
+library(scales)
+
+# Set global options
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 10,
+  fig.height = 6
+)
+
+# Game parameters
+initial_balance <- 1000
+heads_multiplier <- 1.5  # +50%
+tails_multiplier <- 0.6  # -40%
+years_to_retirement <- 35  # Assuming starting at age 20
+num_simulations <- 10000
+
+# Function to simulate a single game
+simulate_game <- function(initial_balance, years, heads_mult, tails_mult) {
+  balance <- initial_balance
+  
+  # Track the balance over time for this simulation
+  balance_history <- numeric(years + 1)
+  balance_history[1] <- balance
+  
+  for (year in 1:years) {
+    # Flip coin (0 = tails, 1 = heads)
+    coin_flip <- rbinom(1, 1, 0.5)
+    
+    if (coin_flip == 1) {
+      # Heads: increase by 50%
+      balance <- balance * heads_mult
+    } else {
+      # Tails: decrease by 40%
+      balance <- balance * tails_mult
+    }
+    
+    balance_history[year + 1] <- balance
+  }
+  
+  return(list(
+    final_balance = balance,
+    balance_history = balance_history
+  ))
+}
+
+# Run many simulations
+set.seed(20250923)  # For reproducibility
+
+```
+
+```{r}
+#| include: false
+
+# Ensure expected value variables exist for downstream analysis
+prob_heads <- 0.5
+prob_tails <- 0.5
+heads_outcome <- initial_balance * heads_multiplier
+tails_outcome <- initial_balance * tails_multiplier
+expected_value_1_flip <- prob_heads * heads_outcome + prob_tails * tails_outcome
+
+invisible({
+  ev_analysis <- list(
+    initial_balance = initial_balance,
+    heads_outcome = heads_outcome,
+    tails_outcome = tails_outcome,
+    expected_value_1_flip = expected_value_1_flip,
+    expected_return_pct = (expected_value_1_flip / initial_balance - 1) * 100
+  )
+})
+```
+
+## Part 1: Expected Value Analysis
+
+The expected value after one coin flip is:
+
+**Heads outcome:** $`r format(ev_analysis$heads_outcome, big.mark = ",")` (50% chance)
+
+**Tails outcome:** $`r format(ev_analysis$tails_outcome, big.mark = ",")` (50% chance)
+
+**Expected value:** $`r format(ev_analysis$expected_value_1_flip, big.mark = ",")`
+
+## Part 2: Expectation vs. Reality
+
+```{r}
+#| label: expectation-vs-reality
+
+# Calculate difference
+difference <- expected_value_1_flip - initial_balance
+is_positive <- expected_value_1_flip > initial_balance
+
+# Store for display
+invisible({
+  expectation_analysis <- list(
+    expected_value_1_flip = expected_value_1_flip,
+    initial_balance = initial_balance,
+    difference = difference,
+    is_positive = is_positive,
+    expected_return_pct = (expected_value_1_flip / initial_balance - 1) * 100
+  )
+})
+```
+
+**Analysis:**
+
+- **Expected value after 1 flip:** $`r format(expectation_analysis$expected_value_1_flip, big.mark = ",")`
+- **Initial investment:** $`r format(expectation_analysis$initial_balance, big.mark = ",")`
+- **Difference:** $`r format(expectation_analysis$difference, big.mark = ",")`
+
+`r if(expectation_analysis$is_positive) {" **POSITIVE EXPECTED VALUE:** The expected value is HIGHER than the initial investment."} else {" **NEGATIVE EXPECTED VALUE:** The expected value is LOWER than the initial investment."}`
+
+This means the game has a `r if(expectation_analysis$is_positive) {"positive"} else {"negative"}` expected return of `r round(expectation_analysis$expected_return_pct, 1)`% per flip.
+
+Based on this, you would expect your account to be worth `r if(expectation_analysis$is_positive) {"MORE"} else {"LESS"}` than $1,000.
+
+
+## Part 3: Single Simulation
+
+```{r}
+#| label: single-simulation
+
+# Run a single simulation and track balance over time
+single_sim <- simulate_game(initial_balance, years_to_retirement, heads_multiplier, tails_multiplier)
+
+# Create data for plotting
+years <- 0:years_to_retirement
+single_sim_data <- tibble(
+  year = years,
+  age = 20 + years,  # Starting at age 20
+  balance = single_sim$balance_history,
+  return_pct = (balance / initial_balance - 1) * 100
+)
+
+# Create the plot
+p_single <- ggplot(single_sim_data, aes(x = age, y = balance)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  geom_point(color = "darkblue", size = 1) +
+  geom_hline(yintercept = initial_balance, color = "red", linetype = "dashed", size = 1) +
+  scale_y_continuous(labels = dollar_format(), trans = "log10") +
+  labs(
+    title = "Single Simulation: Account Balance Over Time",
+    subtitle = paste("Final balance: $", format(round(single_sim$final_balance, 2), big.mark = ","), 
+                     " (", round((single_sim$final_balance / initial_balance - 1) * 100, 1), "% return)"),
+    x = "Age",
+    y = "Account Balance ($, Log Scale)",
+    caption = "Red dashed line = Initial $1,000 investment"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 14, color = "darkblue"),
+    plot.caption = element_text(size = 10, color = "gray"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10)
+  )
+
+print(p_single)
+
+# Analysis of this single simulation
+estimated_heads <- (log(single_sim$final_balance / initial_balance) - years_to_retirement * log(0.6)) / (log(1.5) - log(0.6))
+estimated_tails <- years_to_retirement - estimated_heads
+total_return_pct <- (single_sim$final_balance / initial_balance - 1) * 100
+annualized_return <- (single_sim$final_balance / initial_balance)^(1/years_to_retirement) - 1
+is_profitable <- single_sim$final_balance > initial_balance
+
+# Store for display
+invisible({
+  single_sim_analysis <- list(
+    starting_age = 20,
+    retirement_age = 55,
+    initial_balance = initial_balance,
+    final_balance = single_sim$final_balance,
+    total_return_pct = total_return_pct,
+    annualized_return = annualized_return,
+    estimated_heads = estimated_heads,
+    estimated_tails = estimated_tails,
+    is_profitable = is_profitable
+  )
+})
+```
+
+**Single Simulation Analysis:**
+
+- **Starting age:** `r single_sim_analysis$starting_age`
+- **Retirement age:** `r single_sim_analysis$retirement_age`
+- **Initial balance:** $`r format(single_sim_analysis$initial_balance, big.mark = ",")`
+- **Final balance:** $`r format(round(single_sim_analysis$final_balance, 2), big.mark = ",")`
+- **Total return:** `r round(single_sim_analysis$total_return_pct, 1)`%
+- **Annualized return:** `r round(single_sim_analysis$annualized_return * 100, 3)`%
+- **Estimated heads:** `r round(single_sim_analysis$estimated_heads, 1)` out of `r years_to_retirement` flips
+- **Estimated tails:** `r round(single_sim_analysis$estimated_tails, 1)` out of `r years_to_retirement` flips
+
+**Commentary:**
+
+`r if(single_sim_analysis$is_profitable) {"**SUCCESS!** This simulation resulted in a **PROFIT**."} else {"**LOSS!** This simulation resulted in a **LOSS**."}`
+
+The account `r if(single_sim_analysis$is_profitable) {"grew"} else {"shrank"}` from $1,000 to $`r format(round(single_sim_analysis$final_balance, 2), big.mark = ",")`.
+
+This represents a `r round(single_sim_analysis$total_return_pct, 1)`% `r if(single_sim_analysis$is_profitable) {"gain"} else {"loss"}` over 35 years.
+
+This single simulation shows the high volatility of the game. While the expected value is positive, individual outcomes can vary dramatically. I would not be happy with a 98.4% loss on my investment after 35 years of the game.
+
+## Part 4: Multiple Simulations
+```{r}
+#| label: multiple-simulations
+
+# Run 100 simulations
+set.seed(20250924)  # Different seed for variety
+num_small_simulations <- 100
+
+# Run 100 simulations
+small_simulation_results <- map(1:num_small_simulations, function(i) {
+  simulate_game(initial_balance, years_to_retirement, heads_multiplier, tails_multiplier)
+})
+
+# Extract final balances
+small_final_balances <- map_dbl(small_simulation_results, ~ .x$final_balance)
+
+# Create results dataframe
+small_results_df <- tibble(
+  simulation = 1:num_small_simulations,
+  final_balance = small_final_balances,
+  return_pct = (small_final_balances / initial_balance - 1) * 100
+)
+
+# Calculate summary statistics for 100 simulations
+small_summary_stats <- small_results_df %>%
+  summarise(
+    mean_balance = mean(final_balance),
+    median_balance = median(final_balance),
+    min_balance = min(final_balance),
+    max_balance = max(final_balance),
+    std_dev = sd(final_balance),
+    prob_positive = mean(return_pct > 0),
+    prob_break_even = mean(final_balance >= initial_balance)
+  )
+
+# Create probability distribution plot
+p_distribution <- ggplot(small_results_df, aes(x = final_balance)) +
+  geom_histogram(bins = 20, fill = "steelblue", alpha = 0.7, color = "black", 
+                 aes(y = after_stat(density))) +
+  geom_density(color = "red", size = 1.2, alpha = 0.8) +
+  geom_vline(xintercept = initial_balance, color = "red", linetype = "dashed", size = 1) +
+  geom_vline(xintercept = small_summary_stats$mean_balance, color = "green", linetype = "dashed", size = 1) +
+  geom_vline(xintercept = small_summary_stats$median_balance, color = "orange", linetype = "dashed", size = 1) +
+  scale_x_continuous(labels = dollar_format(), trans = "log10") +
+  labs(
+    title = "Probability Distribution of Final Balances (100 Simulations)",
+    subtitle = paste("Mean: $", format(round(small_summary_stats$mean_balance, 2), big.mark = ","),
+                     " | Median: $", format(round(small_summary_stats$median_balance, 2), big.mark = ","),
+                     " | Std Dev: $", format(round(small_summary_stats$std_dev, 2), big.mark = ",")),
+    x = "Final Balance at Age 55 ($, Log Scale)",
+    y = "Probability Density",
+    caption = "Red line = Initial $1,000 | Green line = Mean | Orange line = Median"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 12, color = "darkblue"),
+    plot.caption = element_text(size = 10, color = "gray"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10)
+  )
+
+print(p_distribution)
+
+# Store results for display
+invisible({
+  small_sim_analysis <- list(
+    num_simulations = num_small_simulations,
+    mean_balance = small_summary_stats$mean_balance,
+    median_balance = small_summary_stats$median_balance,
+    min_balance = small_summary_stats$min_balance,
+    max_balance = small_summary_stats$max_balance,
+    std_dev = small_summary_stats$std_dev,
+    prob_positive = small_summary_stats$prob_positive,
+    prob_break_even = small_summary_stats$prob_break_even
+  )
+})
+```
+
+**100 Simulations Summary:**
+
+```{r}
+#| label: small-summary-table
+#| results: asis
+
+# Compute local probabilities to avoid chunk order dependencies
+prob_gt_1000_local <- mean(small_final_balances > initial_balance)
+prob_ge_1000_local <- mean(small_final_balances >= initial_balance)
+
+small_summary_table <- tibble::tibble(
+  Metric = c(
+    "Number of simulations",
+    "Mean final balance",
+    "Median final balance",
+    "Minimum final balance",
+    "Maximum final balance",
+    "Standard deviation",
+    "Probability > $1,000"
+  ),
+  Value = c(
+    format(small_sim_analysis$num_simulations, big.mark = ","),
+    scales::dollar(round(small_sim_analysis$mean_balance, 2)),
+    scales::dollar(round(small_sim_analysis$median_balance, 2)),
+    scales::dollar(round(small_sim_analysis$min_balance, 2)),
+    scales::dollar(round(small_sim_analysis$max_balance, 2)),
+    scales::dollar(round(small_sim_analysis$std_dev, 2)),
+    paste0(round(prob_gt_1000_local * 100, 1), "%")
+  )
+)
+
+knitr::kable(small_summary_table, align = c('l','r'), caption = 'Summary Statistics (100 Simulations)')
+```
+
+**Key Observations:**
+
+The probability distribution reveals the **extreme volatility** of this investment game:
+
+- **Wide range:** From $`r format(round(small_sim_analysis$min_balance, 2), big.mark = ",")` to $`r format(round(small_sim_analysis$max_balance, 2), big.mark = ",")`
+- **High standard deviation:** $`r format(round(small_sim_analysis$std_dev, 2), big.mark = ",")` indicates massive variability
+- **Skewed distribution:** The mean ($`r format(round(small_sim_analysis$mean_balance, 2), big.mark = ",")`) is much higher than the median ($`r format(round(small_sim_analysis$median_balance, 2), big.mark = ",")`)
+- **Most outcomes are losses:** Only `r round(small_sim_analysis$prob_positive * 100, 1)`% of simulations resulted in positive returns
+
+As an investor, I would not be happy playing this game long term because almost 70% of the time I would end up with less than my initial investment. There are a few outliers that skew the average but the median of $250 is a good indicator of the typical outcome.
+
+## Part 5: Probability Analysis
+
+The probability that my account balance will be greater than $1,000 at age 55 is 31%.
+
+```{r}
+#| label: probability-analysis
+
+# Calculate probability of ending with more than $1,000
+prob_greater_than_1000 <- mean(small_final_balances > initial_balance)
+prob_less_than_1000 <- mean(small_final_balances < initial_balance)
+
+# Calculate additional probability thresholds
+prob_greater_than_2000 <- mean(small_final_balances > 2000)
+prob_greater_than_5000 <- mean(small_final_balances > 5000)
+prob_greater_than_10000 <- mean(small_final_balances > 10000)
+
+# Calculate percentiles
+percentiles <- quantile(small_final_balances, probs = c(0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99))
+
+# Calculate percentile where value equals $1000 (interpolation)
+percentile_1000 <- ecdf(small_final_balances)(1000) * 100
+
+# Store results for display
+invisible({
+  probability_analysis <- list(
+    prob_greater_than_1000 = prob_greater_than_1000,
+    prob_less_than_1000 = prob_less_than_1000,
+    prob_greater_than_2000 = prob_greater_than_2000,
+    prob_greater_than_5000 = prob_greater_than_5000,
+    prob_greater_than_10000 = prob_greater_than_10000,
+    percentiles = percentiles,
+    percentile_1000 = percentile_1000
+  )
+})
+```
+
+**Probability Analysis Results:**
+
+```{r}
+#| label: probability-table
+#| results: asis
+
+pct_fmt <- scales::dollar_format(accuracy = 0.01)
+
+pct_table <- tibble::tibble(
+  `Percentile` = c(
+    "10th",
+    "25th",
+    "50th (median)",
+    paste0(round(probability_analysis$percentile_1000, 1), "th ($1,000)"),
+    "75th",
+    "90th",
+    "95th",
+    "99th"
+  ),
+  `Value` = c(
+    pct_fmt(probability_analysis$percentiles["10%"]),
+    pct_fmt(probability_analysis$percentiles["25%"]),
+    pct_fmt(probability_analysis$percentiles["50%"]),
+    "$1,000.00",
+    pct_fmt(probability_analysis$percentiles["75%"]),
+    pct_fmt(probability_analysis$percentiles["90%"]),
+    pct_fmt(probability_analysis$percentiles["95%"]),
+    pct_fmt(probability_analysis$percentiles["99%"])
+  )
+)
+
+knitr::kable(pct_table, align = c('l','r'), caption = 'Percentile Summary (100 Simulations)')
+```
+
+## Part 6: Strategy Comparison
+
+```{r}
+#| label: strategy-comparison
+#| results: asis
+
+# Modified game logic:
+# Bet exactly 50% of balance each year; the other 50% remains unchanged.
+# Effective annual multipliers: Heads -> 0.5 + 0.5*1.5 = 1.25; Tails -> 0.5 + 0.5*0.6 = 0.8
+mod_heads_multiplier <- 1.25
+mod_tails_multiplier <- 0.8
+
+set.seed(20250925)
+num_comparison_sims <- 100
+
+mod_results <- purrr::map(1:num_comparison_sims, function(i) {
+  simulate_game(initial_balance, years_to_retirement, mod_heads_multiplier, mod_tails_multiplier)
+})
+
+mod_final_balances <- purrr::map_dbl(mod_results, ~ .x$final_balance)
+
+# Probabilities > $10,000
+prob_mod_gt_10000 <- mean(mod_final_balances > 10000)
+
+# Use original 100-sim results from Section 4 (small_final_balances)
+prob_orig_gt_10000 <- mean(small_final_balances > 10000)
+
+comparison_word <- if (abs(prob_mod_gt_10000 - prob_orig_gt_10000) < 1e-9) "Equal" else if (prob_mod_gt_10000 > prob_orig_gt_10000) "Higher" else "Lower"
+
+comparison_table <- tibble::tibble(
+  Scenario = c("Original game", "Modified"),
+  `P(Final > $10,000)` = c(
+    paste0(round(prob_orig_gt_10000 * 100, 1), "%"),
+    paste0(round(prob_mod_gt_10000 * 100, 1), "%")
+  )
+)
+
+cat("\n**Analysis:** The modified game strategy has a", if (prob_mod_gt_10000 > prob_orig_gt_10000) {"higher"} else {"lower"}, "probability of ending with more than $10,000 at age 55 compared to the original game. Interestingly, while the modified strategy is more likely to achieve at least $1,000 (break-even), it is less likely to reach the high-end target of $10,000. This suggests that the modified strategy is", if (prob_mod_gt_10000 > prob_orig_gt_10000) {"more likely to achieve high returns"} else {"less likely to achieve high returns"}, "but may also be", if (prob_mod_gt_10000 > prob_orig_gt_10000) {"more volatile"} else {"less volatile"}, "overall.\n")
+
+knitr::kable(comparison_table, align = c('l','r'), caption = 'Probability of Ending Above $10,000 (100 Simulations)')
+
+cat("\n", sprintf("Result: %s (modified vs. original)", comparison_word))
+```
+
+## Visualizations and Tables: Original vs. Modified
+
+```{r}
+#| label: comparison-visuals
+#| fig-cap: "Distribution of final balances across 100 simulations for both strategies"
+
+# Build combined dataset for visualization
+orig_df_small <- tibble::tibble(
+  simulation = 1:length(small_final_balances),
+  final_balance = small_final_balances,
+  scenario = "Original"
+)
+
+mod_df_small <- tibble::tibble(
+  simulation = 1:length(mod_final_balances),
+  final_balance = mod_final_balances,
+  scenario = "Modified"
+)
+
+combined_df <- dplyr::bind_rows(orig_df_small, mod_df_small)
+
+# Histogram + density by scenario (faceted)
+p_comp <- ggplot(combined_df, aes(x = final_balance, fill = scenario)) +
+  geom_histogram(bins = 20, alpha = 0.6, color = "black", aes(y = after_stat(density))) +
+  geom_density(alpha = 0.4) +
+  scale_x_continuous(labels = scales::dollar, trans = "log10") +
+  labs(
+    title = "Final Balance Distributions (Log Scale)",
+    x = "Final Balance at Age 55 ($, Log Scale)",
+    y = "Density",
+    fill = "Scenario"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    legend.position = "bottom"
+  ) +
+  facet_wrap(~ scenario, ncol = 1, scales = "free_y")
+
+print(p_comp)
+```
+
+```{r}
+#| label: comparison-box
+#| fig-cap: "Boxplots of final balances across 100 simulations by strategy"
+
+ggplot(combined_df, aes(x = scenario, y = final_balance, fill = scenario)) +
+  geom_boxplot(alpha = 0.6, outlier.alpha = 0.5) +
+  scale_y_continuous(labels = scales::dollar, trans = "log10") +
+  labs(
+    title = "Final Balance Boxplots (Log Scale)",
+    x = "Strategy",
+    y = "Final Balance ($)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+```{r}
+#| label: comparison-tables
+#| results: asis
+
+summary_compare <- combined_df %>%
+  group_by(scenario) %>%
+  summarise(
+    mean_balance = mean(final_balance),
+    median_balance = median(final_balance),
+    min_balance = min(final_balance),
+    max_balance = max(final_balance),
+    sd_balance = sd(final_balance),
+    prob_gt_1000 = mean(final_balance > 1000),
+    prob_gt_10000 = mean(final_balance > 10000),
+    .groups = 'drop'
+  ) %>%
+  mutate(
+    mean_balance = scales::dollar(round(mean_balance, 2)),
+    median_balance = scales::dollar(round(median_balance, 2)),
+    min_balance = scales::dollar(round(min_balance, 2)),
+    max_balance = scales::dollar(round(max_balance, 2)),
+    sd_balance = scales::dollar(round(sd_balance, 2)),
+    `P(> $1,000)` = paste0(round(prob_gt_1000 * 100, 1), "%"),
+    `P(> $10,000)` = paste0(round(prob_gt_10000 * 100, 1), "%")
+  ) %>%
+  select(Scenario = scenario, `Mean` = mean_balance, `Median` = median_balance, `Min` = min_balance,
+         `Max` = max_balance, `Std Dev` = sd_balance, `P(> $1,000)`, `P(> $10,000)`)
+
+knitr::kable(summary_compare, align = c('l','r','r','r','r','r','r','r'), caption = 'Summary Comparison: Original vs Modified (100 Simulations)')
+```
+
+---

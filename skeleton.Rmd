@@ -1,0 +1,141 @@
+---
+title: "Simulation Challenge"
+subtitle: "Generative Models and Monte Carlo Simulation"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+    code_folding: show
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Introduction
+
+This document presents a simulation challenge focused on generative models and Monte Carlo simulation techniques.
+
+## Objectives
+
+- Implement Monte Carlo simulation methods
+- Explore generative modeling approaches
+- Analyze simulation results and convergence
+- Visualize simulation outcomes
+
+# Setup
+
+## Load Required Libraries
+
+```{r load-libraries}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+library(gridExtra)
+```
+
+# Monte Carlo Simulation
+
+## Basic Monte Carlo Example
+
+```{r basic-monte-carlo}
+# Simple Monte Carlo estimation of π
+monte_carlo_pi <- function(n) {
+  x <- runif(n, -1, 1)
+  y <- runif(n, -1, 1)
+  inside <- sum(x^2 + y^2 <= 1)
+  return(4 * inside / n)
+}
+
+# Run simulation
+set.seed(123)
+n_sim <- 10000
+pi_estimate <- monte_carlo_pi(n_sim)
+cat("Estimated π:", pi_estimate, "\n")
+cat("Actual π:", pi, "\n")
+cat("Error:", abs(pi_estimate - pi), "\n")
+```
+
+## Visualization
+
+```{r pi-visualization, fig.width=10, fig.height=5}
+# Create visualization
+set.seed(123)
+n_vis <- 1000
+x <- runif(n_vis, -1, 1)
+y <- runif(n_vis, -1, 1)
+inside <- x^2 + y^2 <= 1
+
+df <- data.frame(x = x, y = y, inside = inside)
+
+p1 <- ggplot(df, aes(x = x, y = y, color = inside)) +
+  geom_point(alpha = 0.6) +
+  scale_color_manual(values = c("FALSE" = "red", "TRUE" = "blue")) +
+  labs(title = "Monte Carlo Estimation of π",
+       subtitle = paste("Points inside circle:", sum(inside), "out of", n_vis),
+       x = "X", y = "Y") +
+  theme_minimal()
+
+# Convergence plot
+n_values <- seq(100, 10000, by = 100)
+pi_estimates <- sapply(n_values, monte_carlo_pi)
+
+p2 <- ggplot(data.frame(n = n_values, pi_est = pi_estimates), 
+             aes(x = n, y = pi_est)) +
+  geom_line() +
+  geom_hline(yintercept = pi, linetype = "dashed", color = "red") +
+  labs(title = "Convergence of π Estimation",
+       x = "Number of Simulations", y = "Estimated π") +
+  theme_minimal()
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+# Generative Models
+
+## Simple Generative Model
+
+```{r generative-model}
+# Generate synthetic data using a simple generative model
+generate_data <- function(n, mean = 0, sd = 1) {
+  return(rnorm(n, mean, sd))
+}
+
+# Generate training data
+set.seed(123)
+train_data <- generate_data(1000, mean = 5, sd = 2)
+
+# Visualize generated data
+ggplot(data.frame(x = train_data), aes(x = x)) +
+  geom_histogram(bins = 30, alpha = 0.7, fill = "skyblue") +
+  labs(title = "Generated Data Distribution",
+       x = "Value", y = "Frequency") +
+  theme_minimal()
+```
+
+# Results and Analysis
+
+## Simulation Results
+
+The Monte Carlo simulation successfully estimated π with reasonable accuracy. The convergence plot shows how the estimate improves with more simulations.
+
+## Key Findings
+
+- Monte Carlo methods provide good approximations for complex integrals
+- Convergence improves with sample size
+- Visual inspection helps validate simulation results
+
+# Conclusion
+
+This simulation challenge demonstrates the power of Monte Carlo methods and generative models for statistical estimation and data generation.
+
+# References
+
+- Monte Carlo Methods in Statistical Computing
+- Introduction to Generative Models
+- R for Data Science
